@@ -1,0 +1,42 @@
+#!/bin/sh
+
+
+WORK_ID=`uuidgen`
+WORK_DIR=/tmp/$WORK_ID
+mkdir $WORK_DIR
+RETURN_ADDRESS_INFO=$WORK_DIR/return_address
+MAIL_SUBJECT_INFO=$WORK_DIR/mail_subject
+ATTCHMENT_BASE64=$WORK_DIR/attachment64
+CONVERTER=pdf2jpeg
+SCRIPT_DIR=`dirname $0`
+echo $WORK_ID
+
+while read LINE
+do
+     if [ "${RETURN_ADDRESS:-X}" = X ]; then
+         RETURN_ADDRESS=`echo $LINE | awk '$1 == "Return-Path:" {print $2}'`
+         echo $RETURN_ADDRESS > $RETURN_ADDRESS_INFO
+     fi
+     if [ "${MAIL_SUBJECT:-X}" = X ]; then
+         MAIL_SUBJECT=`echo $LINE | awk '$1 == "Subject:" {print $2}'`
+         echo $MAIL_SUBJECT > $MAIL_SUBJECT_INFO
+     fi
+     if [ "${ATTACHED_FILENAME:-X}" = X ]; then
+         ATTACHED_FILENAME="`echo $LINE | grep filename | awk -F'=' '{print $2}'`"
+     fi
+
+     if [ `echo $LINE | grep -c -- '--Apple-Mail'` -eq 1 ] ; then BASE64LINE=NO ; fi
+     if [ ${BASE64LINE:-NO} = YES ]; then
+        echo $LINE >> $ATTCHMENT_BASE64
+     fi
+
+     if [ "Content-Transfer-Encoding: base64" = "$LINE" ] ;then BASE64LINE=YES ; fi
+done
+
+base64 -D -i $ATTCHMENT_BASE64 -o "$WORK_DIR/$ATTACHED_FILENAME"
+
+if [ -f "$WORK_DIR/$ATTACHED_FILENAME" ] ;then
+     ${SCRIPT_DIR}/$CONVERTER "$WORK_DIR/$ATTACHED_FILENAME"
+else
+     exit 0
+fi
