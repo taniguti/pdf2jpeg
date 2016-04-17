@@ -33,7 +33,11 @@ do
      if [ "Content-Transfer-Encoding: base64" = "$LINE" ] ;then BASE64LINE=YES ; fi
 done
 
-base64 -D -i $ATTCHMENT_BASE64 -o "$WORK_DIR/$ATTACHED_FILENAME"
+if [ -f "$ATTCHMENT_BASE64" ]; then
+    base64 -D -i $ATTCHMENT_BASE64 -o "$WORK_DIR/$ATTACHED_FILENAME"
+else
+    exit 0
+fi
 
 if [ -f "$WORK_DIR/$ATTACHED_FILENAME" ] ;then
      ${SCRIPT_DIR}/$CONVERTER "$WORK_DIR/$ATTACHED_FILENAME" $WORK_ID
