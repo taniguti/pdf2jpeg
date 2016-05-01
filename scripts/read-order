@@ -1,15 +1,15 @@
 #!/bin/sh
 
 WORK_ID=`uuidgen`
-WORK_DIR=/tmp/$WORK_ID
+WORK_DIR=/var/tmp/$WORK_ID
 OUTPUT_DIR=${WORK_DIR}/jpeg-files
-mkdir -p -m 755 $OUTPUT_DIR
+mkdir -p $OUTPUT_DIR
+chmod -R 755 ${WORK_DIR}
 RETURN_ADDRESS_INFO=$WORK_DIR/return_address
 MAIL_SUBJECT_INFO=$WORK_DIR/mail_subject
 ATTCHMENT_BASE64=$WORK_DIR/attachment64
 CONVERTER=pdf2jpeg.py
 SCRIPT_DIR=`dirname $0`
-ehco $WORK_ID/jpeg-files.tgz
 
 while read LINE
 do
@@ -47,3 +47,14 @@ if [ -f "$WORK_DIR/$ATTACHED_FILENAME" ] ;then
 else
      exit 0
 fi
+
+cat << _END > $WORK_DIR/RESULT.txt
+
+Your pdf has been converted into jpeg image files.
+Those jpeg files are archived as tar-gnu-zip archive file.
+You can download it form here: http://www.pretendco.net/$WORK_ID/jpeg-files.tgz
+
+Thanks.
+_END
+
+cat $WORK_DIR/RESULT.txt | mail -s "PDF2JPEG Service: Your request has done." $RETURN_ADDRESS  
