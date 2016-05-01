@@ -52,7 +52,7 @@ cat << _END > $WORK_DIR/RESULT.txt
 
 Your pdf has been converted into jpeg image files.
 Those jpeg files are archived as tar-gnu-zip archive file.
-You can download it form here: http://www.pretendco.net/$WORK_ID/jpeg-files.tgz
+You can download it form here: http://www.pretendco.net/pdf2jpeg/$WORK_ID/jpeg-files.tgz
 
 Thanks.
 _END
